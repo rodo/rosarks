@@ -41,8 +41,28 @@ class BicycleRental(models.Model):
     capacity = models.IntegerField(blank=True,
                                    null=True)
 
-    tags = models.CharField(max_length=3000,
-                            verbose_name='Tags')
+    date_import = models.DateTimeField(auto_now_add=True)
+
+    objects = models.GeoManager()
+
+    def __unicode__(self):
+        """The unicode method
+        """
+        return u'%s' % (self.name)
+
+
+class BusStop(models.Model):
+    """
+    Bicycle rental service
+    """
+    osmid = models.IntegerField()
+
+    name = models.CharField(max_length=100,
+                            verbose_name='Name',
+                            blank=True,
+                            null=True)
+
+    position = models.PointField()
 
     date_import = models.DateTimeField(auto_now_add=True)
 
@@ -53,5 +73,26 @@ class BicycleRental(models.Model):
         """
         return u'%s' % (self.name)
 
-    def get_absolute_url(self):
-        return reverse('line_detail', args=[str(self.id)])
+
+class SubwayStation(models.Model):
+    """
+    Subway Station
+    """
+    osmid = models.IntegerField()
+
+    name = models.CharField(max_length=100,
+                            verbose_name='Name',
+                            blank=True,
+                            null=True)
+
+    position = models.PointField()
+
+    date_import = models.DateTimeField(auto_now_add=True)
+
+    objects = models.GeoManager()
+
+    def __unicode__(self):
+        """The unicode method
+        """
+        return u'%s' % (self.name)
+

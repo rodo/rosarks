@@ -32,7 +32,7 @@ import sys
 import json
 from imposm.parser import OSMParser
 from django.core.management.base import BaseCommand
-from rosarks.amenity.models import BicycleRental
+from rosarks.amenity.models import BicycleRental, BusStop, SubwayStation
 
 class Command(BaseCommand):
     help = 'Import data in file [ARG]'
@@ -45,39 +45,72 @@ class Command(BaseCommand):
         self.stdout.write('import {}\n'.format(fpath))
 
         # instantiate counter and parser and start parsing
-        chker = Bike()
+        chker = RosaParse()
         p = OSMParser(concurrency=4, nodes_callback=chker.nodes)
 
         # Read filename on cmd arg
         p.parse(fpath)
 
 
-class Bike(object):
+class RosaParse(object):
 
     def nodes(self, nodes):
         """Parse the nodes
         """
         for osmid, tags, coord in nodes:
-            position = 'POINT({} {})'.format(coord[0], coord[1])
-            alltags = json.dumps(tags)
+            if 'amenity' in tags:
+                if tags['amenity'] == "bicycle_rental":
+                    create_bicycle_rental(osmid, tags, coord)
 
-            b = BicycleRental(osmid=osmid,
-                              position=position,
-                              tags=alltags)
+            if 'highway' in tags:
+                if tags['highway'] == "bus_stop":
+                    create_bus_stop(osmid, tags, coord)
 
-            try:
-                b.capacity = int(tags['capacity'])
-            except:
-                pass
+            if 'railway' in tags:
+                if 'station' in tags:
+                    if tags['railway'] == "station" and tags['station'] == 'subway':
+                        create_subway_station(osmid, tags, coord)
 
-            try:
-                b.operator = tags['operator']
-            except KeyError:
-                pass
 
-            try:
-                b.name = tags['name']
-            except KeyError:
-                pass
+def create_bicycle_rental(osmid, tags, coord):
+    position = 'POINT({} {})'.format(coord[0], coord[1])
+    b = BicycleRental(osmid=osmid, position=position)
 
-            b.save()
+    try:
+        b.capacity = int(tags['capacity'])
+    except:
+        pass
+
+    try:
+        b.operator = tags['operator']
+    except KeyError:
+        pass
+
+    try:
+        b.name = tags['name']
+    except KeyError:
+        pass
+
+    b.save()
+
+def create_bus_stop(osmid, tags, coord):
+    position = 'POINT({} {})'.format(coord[0], coord[1])
+    b = BusStop(osmid=osmid, position=position)
+
+    try:
+        b.name = tags['name']
+    except KeyError:
+        pass
+
+    b.save()
+
+def create_subway_station(osmid, tags, coord):
+    position = 'POINT({} {})'.format(coord[0], coord[1])
+    b = SubwayStation(osmid=osmid, position=position)
+
+    try:
+        b.name = tags['name']
+    except KeyError:
+        pass
+
+    b.save()
