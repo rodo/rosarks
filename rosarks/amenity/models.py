@@ -31,7 +31,8 @@ class BicycleRental(models.Model):
                             blank=True,
                             null=True)
 
-    position = models.PointField()
+    # Auto index is buggy in GeoDjango 1.4
+    position = models.PointField(spatial_index=False)
 
     operator = models.CharField(max_length=30,
                                 verbose_name='Operator',
@@ -62,7 +63,7 @@ class BusStop(models.Model):
                             blank=True,
                             null=True)
 
-    position = models.PointField()
+    position = models.PointField(spatial_index=False)
 
     date_import = models.DateTimeField(auto_now_add=True)
 
@@ -85,7 +86,7 @@ class SubwayStation(models.Model):
                             blank=True,
                             null=True)
 
-    position = models.PointField()
+    position = models.PointField(spatial_index=False)
 
     date_import = models.DateTimeField(auto_now_add=True)
 
@@ -96,3 +97,39 @@ class SubwayStation(models.Model):
         """
         return u'%s' % (self.name)
 
+
+class SubwayRoute(models.Model):
+    """
+    Subway Station
+    """
+    osmid = models.IntegerField()
+
+    name = models.CharField(max_length=100,
+                            verbose_name='Name',
+                            blank=True,
+                            null=True)
+
+    ref = models.CharField(max_length=10, blank=True, null=True)
+    colour = models.CharField(max_length=10, blank=True, null=True)
+
+    position = models.PointField(spatial_index=False)
+
+    date_import = models.DateTimeField(auto_now_add=True)
+
+    objects = models.GeoManager()
+
+    def __unicode__(self):
+        """The unicode method
+        """
+        return u'%s' % (self.name)
+
+
+class SubwayStop(models.Model):
+    """
+    A subway stop
+    """
+    route = models.ForeignKey(SubwayRoute)
+    station = models.ForeignKey(SubwayStation)
+
+    class Meta:
+        unique_together = ('route', 'station',)

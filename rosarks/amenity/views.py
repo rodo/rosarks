@@ -27,6 +27,11 @@ def bicycle_rental(request, lon, lat):
                       'operator': br.operator,
                       'amenity': 'bicycle_rental'})
 
-    return HttpResponse(json.dumps(datas),
+    results = {'status' : 0,
+               'query': request.get_full_path(),
+               'nb_results': len(datas),
+               'datas' : datas}
+
+    return HttpResponse(json.dumps(results),
                         mimetype='application/json')
 
