@@ -35,6 +35,8 @@ from django.core.management.base import BaseCommand
 from django.db import IntegrityError 
 from rosarks.amenity.models import BicycleRental, BusStop
 from rosarks.amenity.models import SubwayStation, SubwayRoute, SubwayStop
+from rosarks.amenity.models import TramStation, TramRoute, TramStop
+
 
 class Command(BaseCommand):
     help = 'Import data in file [ARG]'
@@ -74,6 +76,8 @@ class RosaParse(object):
                 if 'station' in tags:
                     if tags['railway'] == "station" and tags['station'] == 'subway':
                         create_subway_station(osmid, tags, coord)
+                if tags['railway'] == "tram_stop":
+                        create_tram_station(osmid, tags, coord)
 
     def prelations(self, relations):
         """Parse the relations
@@ -85,6 +89,11 @@ class RosaParse(object):
                     for member in members:
                         if member[1] == 'node' and member[2] == 'stop':
                             create_subway_stop(osmid, member[0])
+                if tags['type'] == 'route' and tags['route'] == 'tram':
+                    create_tram_route(osmid, tags, members)
+                    for member in members:
+                        if member[1] == 'node' and member[2] == 'stop':
+                            create_tram_stop(osmid, member[0])
 
 
 
@@ -166,6 +175,55 @@ def create_subway_stop(route_id, station_id):
     if (len(station) == 1 and len(route) == 1):
         try:
             b = SubwayStop(station=station[0], route=route[0])
+            b.save()
+        except IntegrityError:
+            pass
+
+def create_tram_station(osmid, tags, coord):
+    position = 'POINT({} {})'.format(coord[0], coord[1])
+    b = TramStation(osmid=osmid, position=position)
+
+    try:
+        b.name = tags['name']
+    except KeyError:
+        pass
+
+    b.save()
+
+def create_tram_route(osmid, tags, members):
+    """A tram route is in double in database, one per direction
+    """
+    b = TramRoute(osmid=osmid)
+
+    try:
+        b.name = tags['name']
+    except KeyError:
+        pass
+
+    try:
+        b.colour = tags['colour']
+        if len(b.colour) > 10:
+            b.colour = b.colour[:10]
+    except KeyError:
+        pass
+
+    try:
+        b.ref = tags['ref']
+        if len(b.ref) > 10:
+            b.ref = b.ref[:10]
+    except KeyError:
+        pass
+    b.save()
+
+def create_tram_stop(route_id, station_id):
+    """A tram route is in double in database, one per direction
+    """
+    station = TramStation.objects.filter(osmid=station_id)
+    route = TramRoute.objects.filter(osmid=route_id)
+
+    if (len(station) == 1 and len(route) == 1):
+        try:
+            b = TramStop(station=station[0], route=route[0])
             b.save()
         except IntegrityError:
             pass

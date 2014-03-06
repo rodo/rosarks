@@ -21,6 +21,8 @@ Purge all datas
 from django.core.management.base import BaseCommand
 from rosarks.amenity.models import BicycleRental, BusStop
 from rosarks.amenity.models import SubwayStation, SubwayRoute, SubwayStop
+from rosarks.amenity.models import TramStation, TramRoute, TramStop
+
 
 class Command(BaseCommand):
     help = 'Import data in file [ARG]'
@@ -29,8 +31,11 @@ class Command(BaseCommand):
         """
         Handle the munin command
         """
-        print BicycleRental.objects.all().count()
-        print BusStop.objects.all().count()
-        print SubwayStation.objects.all().count()
-        print SubwayRoute.objects.all().count()
-        print SubwayStop.objects.all().count()
+        print "bicycle_rental : %s" % (BicycleRental.objects.all().count())
+        print "bus stop : %s" % (BusStop.objects.all().count())
+        print "subway station : %s" % (SubwayStation.objects.all().count())
+        print "subway route   : %s " % (SubwayRoute.objects.all().count())
+        print "subway stops   : %s" % (SubwayStop.objects.all().count())
+        print "tram station : %s" % (TramStation.objects.all().count())
+        print "tram route   : %s " % (TramRoute.objects.all().count())
+        print "tram stops   : %s "% (TramStop.objects.all().count())

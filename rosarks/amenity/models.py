@@ -131,3 +131,61 @@ class SubwayStop(models.Model):
 
     class Meta:
         unique_together = ('route', 'station',)
+
+
+class TramStation(models.Model):
+    """
+    Tram Station
+    """
+    osmid = models.BigIntegerField(unique=True)
+
+    name = models.CharField(max_length=100,
+                            verbose_name='Name',
+                            blank=True,
+                            null=True)
+
+    position = models.PointField(spatial_index=False)
+
+    date_import = models.DateTimeField(auto_now_add=True)
+
+    objects = models.GeoManager()
+
+    def __unicode__(self):
+        """The unicode method
+        """
+        return u'%s' % (self.name)
+
+
+class TramRoute(models.Model):
+    """
+    Tram Route
+    """
+    osmid = models.BigIntegerField(unique=True)
+
+    name = models.CharField(max_length=100,
+                            verbose_name='Name',
+                            blank=True,
+                            null=True)
+
+    ref = models.CharField(max_length=10, blank=True, null=True)
+    colour = models.CharField(max_length=10, blank=True, null=True)
+
+    date_import = models.DateTimeField(auto_now_add=True)
+
+    objects = models.GeoManager()
+
+    def __unicode__(self):
+        """The unicode method
+        """
+        return u'%s' % (self.name)
+
+
+class TramStop(models.Model):
+    """
+    A tram stop
+    """
+    route = models.ForeignKey(TramRoute)
+    station = models.ForeignKey(TramStation)
+
+    class Meta:
+        unique_together = ('route', 'station',)

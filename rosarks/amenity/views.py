@@ -24,6 +24,8 @@ from django.contrib.gis.geos import GEOSGeometry
 from django.contrib.gis.measure import D
 from rosarks.amenity.models import BicycleRental
 from rosarks.amenity.models import SubwayStation, SubwayRoute, SubwayStop
+from rosarks.amenity.models import TramStation, TramRoute, TramStop
+
 
 def build_resulsts(status, request, lon, lat, precision, datas):
     """
@@ -108,6 +110,49 @@ def subway_station_precision(request, lon, lat, precision):
                       'osmid': station.osmid,
                       'amenity': 'subway_station',
                       'subway_lines': lines})
+
+    results = build_resulsts(0, request, lon, lat, precision, datas)
+
+    return HttpResponse(results, mimetype='application/json')
+
+
+@cache_page(30)
+def tram_station(request, lon, lat):
+    """Tram stations
+
+    Each tram station with line information
+    """
+    return tram_station_precision(request, lon, lat, settings.ROSARKS_DISTANCE_DEFAULT)
+
+
+@cache_page(30)
+def tram_station_precision(request, lon, lat, precision):
+
+    precision = max(float(settings.ROSARKS_DISTANCE_MIN), float(precision))
+    precision = min(float(settings.ROSARKS_DISTANCE_MAX), float(precision))
+
+    datas = []
+
+    pnt = GEOSGeometry('POINT({} {})'.format(lon, lat))
+
+    stations = TramStation.objects.filter(position__distance_lte=(pnt, D(m=precision))).distance(pnt).order_by('distance')[:10]
+
+    for station in stations:
+        lines = []
+        stops = TramStop.objects.filter(station=station)
+
+        for stop in stops:
+            route = TramRoute.objects.get(pk=stop.route.id)
+            lines.append({"name": route.name,
+                          "ref": route.ref,
+                          "colour": route.colour})
+
+        datas.append({'lon': station.position[0],
+                      'lat': station.position[1],
+                      'name': station.name,
+                      'osmid': station.osmid,
+                      'amenity': 'tram_station',
+                      'tram_lines': lines})
 
     results = build_resulsts(0, request, lon, lat, precision, datas)
 
