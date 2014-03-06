@@ -25,20 +25,38 @@ from django.contrib.gis.measure import D
 from rosarks.amenity.models import BicycleRental
 from rosarks.amenity.models import SubwayStation, SubwayRoute, SubwayStop
 
+def build_resulsts(status, request, lon, lat, precision, datas):
+    """
+    Return String
+    """
+    results = {'status' : status,
+               'query': request.get_full_path(),
+               'center': [lon,lat],
+               'precision': precision,
+               'nb_results': len(datas),
+               'datas' : datas}
+
+    return json.dumps(results)
+
 
 @cache_page(30)
 def bicycle_rental(request, lon, lat):
+    return bicycle_rental_precision(request, lon, lat, settings.ROSARKS_DISTANCE_DEFAULT)
+
+@cache_page(30)
+def bicycle_rental_precision(request, lon, lat, precision):
     """Return the main stats
 
     All bicycle rental at less than 1.42 kilometers
     """
-    distance = settings.ROSARKS_DISTANCE_DEFAULT
+    precision = max(float(settings.ROSARKS_DISTANCE_MIN), float(precision))
+    precision = min(float(settings.ROSARKS_DISTANCE_MAX), float(precision))
+
     datas = []
-    brs = BicycleRental.objects.all()
 
     pnt = GEOSGeometry('POINT({} {})'.format(lon, lat))
 
-    brs = BicycleRental.objects.filter(position__distance_lte=(pnt, D(m=distance)))
+    brs = BicycleRental.objects.filter(position__distance_lte=(pnt, D(m=precision)))
 
     for br in brs:
         datas.append({'lon': br.position[0],
@@ -48,13 +66,9 @@ def bicycle_rental(request, lon, lat):
                       'operator': br.operator,
                       'amenity': 'bicycle_rental'})
 
-    results = {'status' : 0,
-               'query': request.get_full_path(),
-               'nb_results': len(datas),
-               'datas' : datas}
+    results = build_resulsts(0, request, lon, lat, precision, datas)
 
-    return HttpResponse(json.dumps(results),
-                        mimetype='application/json')
+    return HttpResponse(results, mimetype='application/json')
 
 
 @cache_page(30)
@@ -63,12 +77,20 @@ def subway_station(request, lon, lat):
 
     Each subway station with line information
     """
-    distance = settings.ROSARKS_DISTANCE_DEFAULT
+    return subway_station_precision(request, lon, lat, settings.ROSARKS_DISTANCE_DEFAULT)
+
+
+@cache_page(30)
+def subway_station_precision(request, lon, lat, precision):
+
+    precision = max(float(settings.ROSARKS_DISTANCE_MIN), float(precision))
+    precision = min(float(settings.ROSARKS_DISTANCE_MAX), float(precision))
+
     datas = []
 
     pnt = GEOSGeometry('POINT({} {})'.format(lon, lat))
 
-    stations = SubwayStation.objects.filter(position__distance_lte=(pnt, D(m=distance)))
+    stations = SubwayStation.objects.filter(position__distance_lte=(pnt, D(m=precision)))
 
     for station in stations:
         lines = []
@@ -87,11 +109,7 @@ def subway_station(request, lon, lat):
                       'amenity': 'subway_station',
                       'lines': lines})
 
-    results = {'status' : 0,
-               'query': request.get_full_path(),
-               'nb_results': len(datas),
-               'datas' : datas}
+    results = build_resulsts(0, request, lon, lat, precision, datas)
 
-    return HttpResponse(json.dumps(results),
-                        mimetype='application/json')
+    return HttpResponse(results, mimetype='application/json')
 
