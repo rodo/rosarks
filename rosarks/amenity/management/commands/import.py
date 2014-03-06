@@ -163,8 +163,10 @@ def create_subway_stop(route_id, station_id):
     station = SubwayStation.objects.filter(osmid=station_id)
     route = SubwayRoute.objects.filter(osmid=route_id)
 
-    try:
-        b = SubwayStop(station=station[0], route=route[0])
-        b.save()
-    except IntegrityError:
-        pass
+    if (len(station) == 1 and len(route) == 1):
+        try:
+            b = SubwayStop(station=station[0], route=route[0])
+            b.save()
+        except IntegrityError:
+            pass
+

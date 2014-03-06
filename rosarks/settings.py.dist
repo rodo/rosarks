@@ -85,7 +85,7 @@ STATICFILES_DIRS = (
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-    'compressor.finders.CompressorFinder',
+#    'compressor.finders.CompressorFinder',
 #    'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
@@ -129,11 +129,16 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django.contrib.admin',
     'django.contrib.gis',
-    'compressor',
+#    'compressor',
     'rosarks.amenity'
 )
 
-COMPRESS_CSS_FILTERS = ['compressor.filters.csstidy.CSSTidyFilter']
+#COMPRESS_CSS_FILTERS = ['compressor.filters.csstidy.CSSTidyFilter']
+
+# Distance in meters
+ROSARKS_DISTANCE_MIN = 100
+ROSARKS_DISTANCE_DEFAULT = 1000
+ROSARKS_DISTANCE_MAX = 2000
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
