@@ -4,6 +4,7 @@ from django.views.generic import TemplateView
 
 urlpatterns = patterns(
     '',
+    url(r'^bicycle_rental/(?P<lon>-?\d+\.?\d{0,5})\d*/(?P<lat>-?\d+\.?\d{0,5}\d*)/(?P<precision>\d+\.?\d{0,2}\d*)/$', 'rosarks.amenity.views.bicycle_rental_precision'),
     url(r'^bicycle_rental/(?P<lon>-?\d+\.?\d{0,5})\d*/(?P<lat>-?\d+\.?\d{0,5}\d*)/$', 'rosarks.amenity.views.bicycle_rental'),
     url(r'^subway_station/(?P<lon>-?\d+\.?\d{0,5})\d*/(?P<lat>-?\d+\.?\d{0,5}\d*)/(?P<precision>\d+\.?\d{0,2}\d*)/$', 'rosarks.amenity.views.subway_station_precision'),
     url(r'^subway_station/(?P<lon>-?\d+\.?\d{0,5})\d*/(?P<lat>-?\d+\.?\d{0,5}\d*)/$', 'rosarks.amenity.views.subway_station'),
