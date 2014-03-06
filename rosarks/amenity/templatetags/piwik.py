@@ -5,7 +5,8 @@ register = template.Library()
 
 @register.simple_tag
 def piwik_js():
-
+    """Add a the piwik javascript code to template
+    """
     try:
         return """
     <script type="text/javascript">
@@ -15,15 +16,15 @@ def piwik_js():
       
       (function() {
       var u=(("https:" == document.location.protocol) ? "https" :
-      "http") + "://{}/";
+      "http") + "://%s/";
       _paq.push(["setTrackerUrl", u+"piwik.php"]);
-      _paq.push(["setSiteId", "{}"]);
+      _paq.push(["setSiteId", "%s"]);
       var d=document, g=d.createElement("script"),
       s=d.getElementsByTagName("script")[0]; g.type="text/javascript";
       g.defer=true; g.async=true; g.src=u+"piwik.js";
       s.parentNode.insertBefore(g,s);
       })();
     </script>
-""".format(settings.PIWIK_SERVER, settings.PIWIK_ID)
+""" % (settings.PIWIK_SERVER, settings.PIWIK_ID)
     except:
         return ""
