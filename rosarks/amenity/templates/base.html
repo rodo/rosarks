@@ -1,0 +1,72 @@
+{% load i18n %}
+{% load compress %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Simple API to access OSM Amenities">
+    <meta name="author" content="Rodolphe Quiédeville <rodolphe@quiedeville.org>">
+    <link rel="shortcut icon" href="../../assets/ico/favicon.ico">
+
+    <title>Rosarks - Amenities API </title>
+    {% compress css %}
+    <link href="{{STATIC_URL}}bootstrap.min.css" rel="stylesheet">
+    <link href="{{STATIC_URL}}/jumbotron-narrow.css" rel="stylesheet">{% endcompress %}
+  </head>
+
+  <body>
+    {% block content %}
+    <div class="container">
+      <div class="header">
+        <ul class="nav nav-pills pull-right">
+          <li class="active"><a href="#">Home</a></li>
+          <li><a href="#">About</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+        <h3 class="text-muted">Rosarks</h3>
+      </div>
+
+      <div class="jumbotron">
+        <h1>Rosarks API</h1>
+        <p class="lead">Rosarks is a simple API to find amenities
+        near a single point, results are availabe in JSON format.</p>
+      </div>
+
+      <div class="row marketing">
+        <div class="col-lg-6">
+          <h4>Bicycle Rental</h4>
+          <p><a href="/bicycle_rental/2.1353317/48.7966">Sample</a></p>
+
+          <h4>Subheading</h4>
+          <p>Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Cras mattis consectetur purus sit amet fermentum.</p>
+
+          <h4>Subheading</h4>
+          <p>Maecenas sed diam eget risus varius blandit sit amet non magna.</p>
+        </div>
+
+        <div class="col-lg-6">
+          <h4>Subheading</h4>
+          <p>Donec id elit non mi porta gravida at eget metus. Maecenas faucibus mollis interdum.</p>
+
+          <h4>Subheading</h4>
+          <p>Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Cras mattis consectetur purus sit amet fermentum.</p>
+
+          <h4>Subheading</h4>
+          <p>Maecenas sed diam eget risus varius blandit sit amet non magna.</p>
+        </div>
+      </div>
+
+      <div class="footer">
+        <p>&copy; Roodolphe Quiédeville 2014</p>
+      </div>
+
+    </div> <!-- /container -->
+    {% endblock %}
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+  </body>
+</html>

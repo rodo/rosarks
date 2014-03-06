@@ -24,7 +24,7 @@ class BicycleRental(models.Model):
     """
     Bicycle rental service
     """
-    osmid = models.IntegerField()
+    osmid = models.BigIntegerField(unique=True)
 
     name = models.CharField(max_length=100,
                             verbose_name='Name',
@@ -56,7 +56,7 @@ class BusStop(models.Model):
     """
     Bicycle rental service
     """
-    osmid = models.IntegerField()
+    osmid = models.BigIntegerField(unique=True)
 
     name = models.CharField(max_length=100,
                             verbose_name='Name',
@@ -79,7 +79,7 @@ class SubwayStation(models.Model):
     """
     Subway Station
     """
-    osmid = models.IntegerField()
+    osmid = models.BigIntegerField(unique=True)
 
     name = models.CharField(max_length=100,
                             verbose_name='Name',
@@ -100,9 +100,9 @@ class SubwayStation(models.Model):
 
 class SubwayRoute(models.Model):
     """
-    Subway Station
+    Subway Route
     """
-    osmid = models.IntegerField()
+    osmid = models.BigIntegerField(unique=True)
 
     name = models.CharField(max_length=100,
                             verbose_name='Name',
@@ -111,8 +111,6 @@ class SubwayRoute(models.Model):
 
     ref = models.CharField(max_length=10, blank=True, null=True)
     colour = models.CharField(max_length=10, blank=True, null=True)
-
-    position = models.PointField(spatial_index=False)
 
     date_import = models.DateTimeField(auto_now_add=True)
 
