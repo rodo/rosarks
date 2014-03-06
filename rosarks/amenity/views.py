@@ -56,7 +56,7 @@ def bicycle_rental_precision(request, lon, lat, precision):
 
     pnt = GEOSGeometry('POINT({} {})'.format(lon, lat))
 
-    brs = BicycleRental.objects.filter(position__distance_lte=(pnt, D(m=precision)))
+    brs = BicycleRental.objects.filter(position__distance_lte=(pnt, D(m=precision))).distance(pnt).order_by('distance')[:10]
 
     for br in brs:
         datas.append({'lon': br.position[0],
@@ -90,7 +90,7 @@ def subway_station_precision(request, lon, lat, precision):
 
     pnt = GEOSGeometry('POINT({} {})'.format(lon, lat))
 
-    stations = SubwayStation.objects.filter(position__distance_lte=(pnt, D(m=precision)))
+    stations = SubwayStation.objects.filter(position__distance_lte=(pnt, D(m=precision))).distance(pnt).order_by('distance')[:10]
 
     for station in stations:
         lines = []
@@ -107,7 +107,7 @@ def subway_station_precision(request, lon, lat, precision):
                       'name': station.name,
                       'osmid': station.osmid,
                       'amenity': 'subway_station',
-                      'lines': lines})
+                      'subway_lines': lines})
 
     results = build_resulsts(0, request, lon, lat, precision, datas)
 
