@@ -27,16 +27,21 @@ from rosarks.amenity.models import SubwayStation, SubwayRoute, SubwayStop
 from rosarks.amenity.models import TramStation, TramRoute, TramStop
 
 
-def build_resulsts(status, request, lon, lat, precision, datas):
+def build_results(status, request, lon, lat, precision, datas):
     """
     Return String
     """
+    try:
+        limit = min(10, int(request.GET['limit']))
+    except:
+        limit = 10
+
     results = {'status' : status,
                'query': request.get_full_path(),
                'center': [lon,lat],
                'precision': precision,
                'nb_results': len(datas),
-               'datas' : datas}
+               'datas' : datas[:limit]}
 
     return json.dumps(results)
 
@@ -79,13 +84,13 @@ def bicycle_rental_precision(request, lon, lat, precision):
     for br in brs:
         datas.append({'lon': br.position[0],
                       'lat': br.position[1],
-                      'distance': br.distance.m,
+                      'distance': round(br.distance.m, 2),
                       'name': br.name,
                       'osmid': br.osmid,
                       'operator': br.operator,
                       'amenity': 'bicycle_rental'})
 
-    results = build_resulsts(0, request, lon, lat, precision, datas)
+    results = build_results(0, request, lon, lat, precision, datas)
 
     return serve(request, results)
 
@@ -123,13 +128,13 @@ def subway_station_precision(request, lon, lat, precision):
 
         datas.append({'lon': station.position[0],
                       'lat': station.position[1],
-                      'distance': station.distance.m,
+                      'distance': round(br.distance.m, 2),
                       'name': station.name,
                       'osmid': station.osmid,
                       'amenity': 'subway_station',
                       'subway_lines': lines})
 
-    results = build_resulsts(0, request, lon, lat, precision, datas)
+    results = build_results(0, request, lon, lat, precision, datas)
 
     return serve(request, results)
 
@@ -167,13 +172,13 @@ def tram_station_precision(request, lon, lat, precision):
 
         datas.append({'lon': station.position[0],
                       'lat': station.position[1],
-                      'distance': station.distance.m,
+                      'distance': round(br.distance.m, 2),
                       'name': station.name,
                       'osmid': station.osmid,
                       'amenity': 'tram_station',
                       'tram_lines': lines})
 
-    results = build_resulsts(0, request, lon, lat, precision, datas)
+    results = build_results(0, request, lon, lat, precision, datas)
 
     return serve(request, results)
 

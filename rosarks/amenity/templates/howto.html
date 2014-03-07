@@ -41,8 +41,20 @@
 
 
       <h4>JSONP and callback</h4>
-      <p>You can add a prameter <b>callback</b> at the end of the url
+      <p>You can add a parameter <b>callback</b> at the end of the url
       if you need to obtain result in JSONP, <b>/amenity/lon/lat/50.0/?callback=foo</b>
+      </p>
+
+      <h4>Limit number of results output</h4>
+      <p>You can add a parameter <b>limit</b> in the url
+      to limit number of results output. The key <i>nb_results</i> in
+      output return number of results found, in case of limit it may
+      be higher than limit, the max is 10.
+      </p>
+
+      <h4>Distance</h4>
+      <p>The distance indicated in results is expressed in meters and
+      it's the direct distance on earth, it's not the routing distance.
       </p>
 
     </div>
