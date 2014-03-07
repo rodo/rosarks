@@ -41,6 +41,22 @@ def build_resulsts(status, request, lon, lat, precision, datas):
     return json.dumps(results)
 
 
+def serve(request, results):
+    """
+    Return final result
+
+    Look if requets is made in JSON or JSONP
+    """
+    try:
+        callback = request.GET['callback']
+        content = "{}({});".format(callback, results)
+    except KeyError:
+        content = results
+        
+
+    return HttpResponse(content, mimetype='application/json')    
+
+
 @cache_page(30)
 def bicycle_rental(request, lon, lat):
     return bicycle_rental_precision(request, lon, lat, settings.ROSARKS_DISTANCE_DEFAULT)
@@ -70,7 +86,7 @@ def bicycle_rental_precision(request, lon, lat, precision):
 
     results = build_resulsts(0, request, lon, lat, precision, datas)
 
-    return HttpResponse(results, mimetype='application/json')
+    return serve(request, results)
 
 
 @cache_page(30)
@@ -113,7 +129,7 @@ def subway_station_precision(request, lon, lat, precision):
 
     results = build_resulsts(0, request, lon, lat, precision, datas)
 
-    return HttpResponse(results, mimetype='application/json')
+    return serve(request, results)
 
 
 @cache_page(30)
@@ -156,5 +172,5 @@ def tram_station_precision(request, lon, lat, precision):
 
     results = build_resulsts(0, request, lon, lat, precision, datas)
 
-    return HttpResponse(results, mimetype='application/json')
+    return serve(request, results)
 
