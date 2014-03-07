@@ -123,7 +123,7 @@ def subway_station_precision(request, lon, lat, precision):
 
         datas.append({'lon': station.position[0],
                       'lat': station.position[1],
-                      'distance': br.distance.m,
+                      'distance': station.distance.m,
                       'name': station.name,
                       'osmid': station.osmid,
                       'amenity': 'subway_station',
@@ -167,7 +167,7 @@ def tram_station_precision(request, lon, lat, precision):
 
         datas.append({'lon': station.position[0],
                       'lat': station.position[1],
-                      'distance': br.distance.m,
+                      'distance': station.distance.m,
                       'name': station.name,
                       'osmid': station.osmid,
                       'amenity': 'tram_station',
