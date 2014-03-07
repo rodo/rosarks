@@ -62,11 +62,11 @@ def serve(request, results):
     return HttpResponse(content, mimetype='application/json')    
 
 
-@cache_page(30)
+@cache_page(3600)
 def bicycle_rental(request, lon, lat):
     return bicycle_rental_precision(request, lon, lat, settings.ROSARKS_DISTANCE_DEFAULT)
 
-@cache_page(30)
+@cache_page(3600)
 def bicycle_rental_precision(request, lon, lat, precision):
     """Return the main stats
 
@@ -95,7 +95,7 @@ def bicycle_rental_precision(request, lon, lat, precision):
     return serve(request, results)
 
 
-@cache_page(30)
+@cache_page(3600)
 def subway_station(request, lon, lat):
     """Subway stations
 
@@ -104,7 +104,7 @@ def subway_station(request, lon, lat):
     return subway_station_precision(request, lon, lat, settings.ROSARKS_DISTANCE_DEFAULT)
 
 
-@cache_page(30)
+@cache_page(3600)
 def subway_station_precision(request, lon, lat, precision):
 
     precision = max(float(settings.ROSARKS_DISTANCE_MIN), float(precision))
@@ -118,13 +118,18 @@ def subway_station_precision(request, lon, lat, precision):
 
     for station in stations:
         lines = []
+        last = ""
         stops = SubwayStop.objects.filter(station=station)
 
         for stop in stops:
             route = SubwayRoute.objects.get(pk=stop.route.id)
-            lines.append({"name": route.name,
-                          "ref": route.ref,
-                          "colour": route.colour})
+            # try to remove duplicated datas
+            key = u"{}{}{}".format(route.name, route.ref, route.colour)
+            if key != last:
+                lines.append({"name": route.name,
+                              "ref": route.ref,
+                              "colour": route.colour})
+                last = key
 
         datas.append({'lon': station.position[0],
                       'lat': station.position[1],
@@ -139,7 +144,7 @@ def subway_station_precision(request, lon, lat, precision):
     return serve(request, results)
 
 
-@cache_page(30)
+@cache_page(3600)
 def tram_station(request, lon, lat):
     """Tram stations
 
@@ -148,7 +153,7 @@ def tram_station(request, lon, lat):
     return tram_station_precision(request, lon, lat, settings.ROSARKS_DISTANCE_DEFAULT)
 
 
-@cache_page(30)
+@cache_page(3600)
 def tram_station_precision(request, lon, lat, precision):
 
     precision = max(float(settings.ROSARKS_DISTANCE_MIN), float(precision))
