@@ -79,6 +79,7 @@ def bicycle_rental_precision(request, lon, lat, precision):
     for br in brs:
         datas.append({'lon': br.position[0],
                       'lat': br.position[1],
+                      'distance': br.distance.m,
                       'name': br.name,
                       'osmid': br.osmid,
                       'operator': br.operator,
@@ -122,6 +123,7 @@ def subway_station_precision(request, lon, lat, precision):
 
         datas.append({'lon': station.position[0],
                       'lat': station.position[1],
+                      'distance': br.distance.m,
                       'name': station.name,
                       'osmid': station.osmid,
                       'amenity': 'subway_station',
@@ -165,6 +167,7 @@ def tram_station_precision(request, lon, lat, precision):
 
         datas.append({'lon': station.position[0],
                       'lat': station.position[1],
+                      'distance': br.distance.m,
                       'name': station.name,
                       'osmid': station.osmid,
                       'amenity': 'tram_station',
