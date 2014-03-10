@@ -25,6 +25,7 @@ from django.contrib.gis.measure import D
 from rosarks.amenity.models import BicycleRental
 from rosarks.amenity.models import SubwayStation, SubwayRoute, SubwayStop
 from rosarks.amenity.models import TramStation, TramRoute, TramStop
+from rosarks.amenity.models import BusStop, BusRoute, BusRouteStop
 
 
 def build_results(status, request, lon, lat, precision, datas):
@@ -182,6 +183,55 @@ def tram_station_precision(request, lon, lat, precision):
                       'osmid': station.osmid,
                       'amenity': 'tram_station',
                       'tram_lines': lines})
+
+    results = build_results(0, request, lon, lat, precision, datas)
+
+    return serve(request, results)
+
+
+@cache_page(3600)
+def bus_stop(request, lon, lat):
+    """Tram stations
+
+    Each tram station with line information
+    """
+    return bus_stop_precision(request, lon, lat, settings.ROSARKS_DISTANCE_DEFAULT)
+
+
+@cache_page(3600)
+def bus_stop_precision(request, lon, lat, precision):
+
+    precision = max(float(settings.ROSARKS_DISTANCE_MIN), float(precision))
+    precision = min(float(settings.ROSARKS_DISTANCE_MAX), float(precision))
+
+    datas = []
+
+    pnt = GEOSGeometry('POINT({} {})'.format(lon, lat))
+
+    stations = BusStop.objects.filter(position__distance_lte=(pnt, D(m=precision))).distance(pnt).order_by('distance')[:10]
+
+    for station in stations:
+        lines = []
+        last = None
+        stops = BusRouteStop.objects.filter(stop=station)
+
+        for stop in stops:
+            route = BusRoute.objects.get(pk=stop.route.id)
+            key = u"{}{}{}".format(route.name, route.ref, route.colour)
+            if key != last:
+                lines.append({"name": route.name,
+                              "ref": route.ref,
+                              "operator": route.operator,
+                              "colour": route.colour})
+                last = key
+
+        datas.append({'lon': station.position[0],
+                      'lat': station.position[1],
+                      'distance': round(station.distance.m, 2),
+                      'name': station.name,
+                      'osmid': station.osmid,
+                      'amenity': 'bus_stop',
+                      'bus_lines': lines})
 
     results = build_results(0, request, lon, lat, precision, datas)
 

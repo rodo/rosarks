@@ -19,8 +19,9 @@
 Purge all datas
 """
 from django.core.management.base import BaseCommand
-from rosarks.amenity.models import BicycleRental, BusStop
+from rosarks.amenity.models import BicycleRental, BusStop, BusRoute
 from rosarks.amenity.models import SubwayStation, SubwayRoute, SubwayStop
+from rosarks.amenity.models import TramStation, TramRoute
 
 class Command(BaseCommand):
     help = 'Import data in file [ARG]'
@@ -31,6 +32,9 @@ class Command(BaseCommand):
         """
         BicycleRental.objects.all().delete()
         BusStop.objects.all().delete()
+        BusRoute.objects.all().delete()
         SubwayStop.objects.all().delete()
         SubwayStation.objects.all().delete()
         SubwayRoute.objects.all().delete()
+        TramStation.objects.all().delete()
+        TramRoute.objects.all().delete()

@@ -33,7 +33,7 @@ import json
 from imposm.parser import OSMParser
 from django.core.management.base import BaseCommand
 from django.db import IntegrityError 
-from rosarks.amenity.models import BicycleRental, BusStop
+from rosarks.amenity.models import BicycleRental, BusStop, BusRoute, BusRouteStop
 from rosarks.amenity.models import SubwayStation, SubwayRoute, SubwayStop
 from rosarks.amenity.models import TramStation, TramRoute, TramStop
 
@@ -84,17 +84,28 @@ class RosaParse(object):
         """
         for osmid, tags, members in relations:
             if 'type' in tags and 'route' in tags:
-                if tags['type'] == 'route' and tags['route'] == 'subway':
-                    create_subway_route(osmid, tags, members)
-                    for member in members:
-                        if member[1] == 'node' and member[2] == 'stop':
-                            create_subway_stop(osmid, member[0])
-                if tags['type'] == 'route' and tags['route'] == 'tram':
-                    create_tram_route(osmid, tags, members)
-                    for member in members:
-                        if member[1] == 'node' and member[2] == 'stop':
-                            create_tram_stop(osmid, member[0])
+                if tags['type'] == 'route':
+                    self.routes(osmid, tags, members)
 
+    def routes(self, osmid, tags, members):
+        """
+        Route for bus/subway and tramway
+        """
+        if tags['route'] == 'subway':
+            create_subway_route(osmid, tags, members)
+            for member in members:
+                if member[1] == 'node' and member[2] == 'stop':
+                    create_subway_stop(osmid, member[0])
+        if tags['route'] == 'tram':
+            create_tram_route(osmid, tags, members)
+            for member in members:
+                if member[1] == 'node' and member[2] == 'stop':
+                    create_tram_stop(osmid, member[0])
+        if tags['route'] == 'bus':
+            create_bus_route(osmid, tags, members)
+            for member in members:
+                if member[1] == 'node' and member[2] == 'stop':
+                    create_busroute_stop(osmid, member[0])
 
 
 def create_bicycle_rental(osmid, tags, coord):
@@ -107,9 +118,8 @@ def create_bicycle_rental(osmid, tags, coord):
         pass
 
     try:
-        b.operator = tags['operator']
-        if len(b.operator) > 30:
-            b.operator = b.operator[:30]
+        operator = tags['operator']
+        b.operator = operator[:50]
     except KeyError:
         pass
 
@@ -117,17 +127,6 @@ def create_bicycle_rental(osmid, tags, coord):
         b.name = tags['name']
     except KeyError:
         pass
-    b.save()
-
-def create_bus_stop(osmid, tags, coord):
-    position = 'POINT({} {})'.format(coord[0], coord[1])
-    b = BusStop(osmid=osmid, position=position)
-
-    try:
-        b.name = tags['name']
-    except KeyError:
-        pass
-
     b.save()
 
 def create_subway_station(osmid, tags, coord):
@@ -148,6 +147,12 @@ def create_subway_route(osmid, tags, members):
 
     try:
         b.name = tags['name']
+    except KeyError:
+        pass
+
+    try:
+        operator = tags['operator']
+        b.operator = operator[:50]
     except KeyError:
         pass
 
@@ -201,6 +206,12 @@ def create_tram_route(osmid, tags, members):
         pass
 
     try:
+        operator = tags['operator']
+        b.operator = operator[:50]
+    except KeyError:
+        pass
+
+    try:
         b.colour = tags['colour']
         if len(b.colour) > 10:
             b.colour = b.colour[:10]
@@ -224,6 +235,67 @@ def create_tram_stop(route_id, station_id):
     if (len(station) == 1 and len(route) == 1):
         try:
             b = TramStop(station=station[0], route=route[0])
+            b.save()
+        except IntegrityError:
+            pass
+
+def create_bus_stop(osmid, tags, coord):
+    position = 'POINT({} {})'.format(coord[0], coord[1])
+    b = BusStop(osmid=osmid, position=position)
+
+    try:
+        b.name = tags['name']
+    except KeyError:
+        pass
+
+    b.save()
+
+def create_bus_route(osmid, tags, members):
+    """A bus route is in double in database, one per direction
+    """
+    b = BusRoute(osmid=osmid)
+
+    try:
+        b.name = tags['name']
+    except KeyError:
+        pass
+
+    try:
+        operator = tags['operator']
+        b.operator = operator[:50]
+    except KeyError:
+        pass
+
+    try:
+        if tags['wheelchair'] == 'yes':
+            b.wheelchair = True
+    except KeyError:
+        pass
+
+    try:
+        b.colour = tags['colour']
+        if len(b.colour) > 10:
+            b.colour = b.colour[:10]
+    except KeyError:
+        pass
+
+    try:
+        b.ref = tags['ref']
+        if len(b.ref) > 10:
+            b.ref = b.ref[:10]
+    except KeyError:
+        pass
+    b.save()
+
+def create_busroute_stop(route_id, stop_id):
+    """A bus route is in double in database, one per direction
+    """
+    stop = BusStop.objects.filter(osmid=stop_id)
+    route = BusRoute.objects.filter(osmid=route_id)
+
+    if (len(stop) == 1 and len(route) == 1):
+        try:
+            b = BusRouteStop(stop=stop[0], route=route[0])
             b.save()
         except IntegrityError:
             pass

@@ -34,7 +34,7 @@ class BicycleRental(models.Model):
     # Auto index is buggy in GeoDjango 1.4
     position = models.PointField(spatial_index=False)
 
-    operator = models.CharField(max_length=30,
+    operator = models.CharField(max_length=50,
                                 verbose_name='Operator',
                                 blank=True,
                                 null=True)
@@ -54,7 +54,7 @@ class BicycleRental(models.Model):
 
 class BusStop(models.Model):
     """
-    Bicycle rental service
+    Where the bus stop and take passenger
     """
     osmid = models.BigIntegerField(unique=True)
 
@@ -73,6 +73,46 @@ class BusStop(models.Model):
         """The unicode method
         """
         return u'%s' % (self.name)
+
+
+class BusRoute(models.Model):
+    """
+    Where the bus stop and take passenger
+    """
+    osmid = models.BigIntegerField(unique=True)
+
+    name = models.CharField(max_length=100,
+                            verbose_name='Name',
+                            blank=True,
+                            null=True)
+
+    ref = models.CharField(max_length=10, blank=True, null=True)
+    colour = models.CharField(max_length=10, blank=True, null=True)
+
+    operator = models.CharField(max_length=50,
+                                verbose_name='Operator',
+                                blank=True,
+                                null=True)
+
+    date_import = models.DateTimeField(auto_now_add=True)
+
+    wheelchair = models.BooleanField(default=False)
+
+    def __unicode__(self):
+        """The unicode method
+        """
+        return u'%s' % (self.name)
+
+
+class BusRouteStop(models.Model):
+    """
+    A bus stop
+    """
+    route = models.ForeignKey(BusRoute)
+    stop = models.ForeignKey(BusStop)
+
+    class Meta:
+        unique_together = ('route', 'stop',)
 
 
 class SubwayStation(models.Model):
@@ -107,14 +147,16 @@ class SubwayRoute(models.Model):
     name = models.CharField(max_length=100,
                             verbose_name='Name',
                             blank=True,
-                            null=True)
+                            null=True)    
 
     ref = models.CharField(max_length=10, blank=True, null=True)
     colour = models.CharField(max_length=10, blank=True, null=True)
-
     date_import = models.DateTimeField(auto_now_add=True)
 
-    objects = models.GeoManager()
+    operator = models.CharField(max_length=50,
+                                verbose_name='Operator',
+                                blank=True,
+                                null=True)
 
     def __unicode__(self):
         """The unicode method
@@ -170,9 +212,13 @@ class TramRoute(models.Model):
     ref = models.CharField(max_length=10, blank=True, null=True)
     colour = models.CharField(max_length=10, blank=True, null=True)
 
+    operator = models.CharField(max_length=50,
+                                verbose_name='Operator',
+                                blank=True,
+                                null=True)
+
     date_import = models.DateTimeField(auto_now_add=True)
 
-    objects = models.GeoManager()
 
     def __unicode__(self):
         """The unicode method

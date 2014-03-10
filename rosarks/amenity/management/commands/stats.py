@@ -19,7 +19,7 @@
 Purge all datas
 """
 from django.core.management.base import BaseCommand
-from rosarks.amenity.models import BicycleRental, BusStop
+from rosarks.amenity.models import BicycleRental, BusStop, BusRoute
 from rosarks.amenity.models import SubwayStation, SubwayRoute, SubwayStop
 from rosarks.amenity.models import TramStation, TramRoute, TramStop
 
@@ -33,6 +33,7 @@ class Command(BaseCommand):
         """
         print "bicycle_rental : %s" % (BicycleRental.objects.all().count())
         print "bus stop : %s" % (BusStop.objects.all().count())
+        print "bus route : %s" % (BusRoute.objects.all().count())
         print "subway station : %s" % (SubwayStation.objects.all().count())
         print "subway route   : %s " % (SubwayRoute.objects.all().count())
         print "subway stops   : %s" % (SubwayStop.objects.all().count())

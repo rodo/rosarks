@@ -12,6 +12,9 @@ urlpatterns = patterns(
     url(r'^tramway_station/(?P<lon>-?\d+\.?\d{0,5})\d*/(?P<lat>-?\d+\.?\d{0,5}\d*)/(?P<precision>\d+\.?\d{0,2}\d*)/$', 'rosarks.amenity.views.tram_station_precision'),
     url(r'^tramway_station/(?P<lon>-?\d+\.?\d{0,5})\d*/(?P<lat>-?\d+\.?\d{0,5}\d*)/$', 'rosarks.amenity.views.tram_station'),
 
+    url(r'^bus_stop/(?P<lon>-?\d+\.?\d{0,5})\d*/(?P<lat>-?\d+\.?\d{0,5}\d*)/(?P<precision>\d+\.?\d{0,2}\d*)/$', 'rosarks.amenity.views.bus_stop_precision'),
+    url(r'^bus_stop/(?P<lon>-?\d+\.?\d{0,5})\d*/(?P<lat>-?\d+\.?\d{0,5}\d*)/$', 'rosarks.amenity.views.bus_stop'),
+
 
     url(r'^about/$', TemplateView.as_view(template_name='about.html')),
     url(r'^howto/$', TemplateView.as_view(template_name='howto.html')),
