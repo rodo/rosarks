@@ -297,6 +297,6 @@ def create_busroute_stop(route_id, stop_id):
         try:
             b = BusRouteStop(stop=stop[0], route=route[0])
             b.save()
-        except IntegrityError:
+        except:
             pass
 
