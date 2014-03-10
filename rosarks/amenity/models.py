@@ -111,9 +111,6 @@ class BusRouteStop(models.Model):
     route = models.ForeignKey(BusRoute)
     stop = models.ForeignKey(BusStop)
 
-    class Meta:
-        unique_together = ('route', 'stop',)
-
 
 class SubwayStation(models.Model):
     """
