@@ -256,7 +256,8 @@ def create_bus_route(osmid, tags, members):
     b = BusRoute(osmid=osmid)
 
     try:
-        b.name = tags['name']
+        name = tags['name']
+        b.name = name[:100]
     except KeyError:
         pass
 
