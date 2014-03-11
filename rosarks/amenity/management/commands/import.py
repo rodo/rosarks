@@ -96,7 +96,7 @@ class RosaParse(object):
             for member in members:
                 if member[1] == 'node' and member[2] == 'stop':
                     create_subway_stop(osmid, member[0])
-        if tags['route'] == 'tram':
+        if tags['route'] == 'tram' or tags['route'] == 'trolleybus':
             create_tram_route(osmid, tags, members)
             for member in members:
                 if member[1] == 'node' and member[2] == 'stop':
