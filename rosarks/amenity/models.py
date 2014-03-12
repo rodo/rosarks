@@ -20,7 +20,7 @@ from django.contrib.gis.db import models
 from django.core.urlresolvers import reverse
 
 
-class BicycleRental(models.Model):
+class geoObject(models.Model):
     """
     Bicycle rental service
     """
@@ -34,6 +34,24 @@ class BicycleRental(models.Model):
     # Auto index is buggy in GeoDjango 1.4
     position = models.PointField(spatial_index=False)
 
+    date_import = models.DateTimeField(auto_now_add=True)
+
+    objects = models.GeoManager()
+
+    class Meta:
+        abstract = True
+
+    def __unicode__(self):
+        """The unicode method
+        """
+        return u'%s' % (self.name)
+
+
+class BicycleRental(geoObject):
+    """
+    Bicycle rental service
+    """
+
     operator = models.CharField(max_length=50,
                                 verbose_name='Operator',
                                 blank=True,
@@ -42,37 +60,11 @@ class BicycleRental(models.Model):
     capacity = models.IntegerField(blank=True,
                                    null=True)
 
-    date_import = models.DateTimeField(auto_now_add=True)
 
-    objects = models.GeoManager()
-
-    def __unicode__(self):
-        """The unicode method
-        """
-        return u'%s' % (self.name)
-
-
-class BusStop(models.Model):
+class BusStop(geoObject):
     """
     Where the bus stop and take passenger
     """
-    osmid = models.BigIntegerField(unique=True)
-
-    name = models.CharField(max_length=100,
-                            verbose_name='Name',
-                            blank=True,
-                            null=True)
-
-    position = models.PointField(spatial_index=False)
-
-    date_import = models.DateTimeField(auto_now_add=True)
-
-    objects = models.GeoManager()
-
-    def __unicode__(self):
-        """The unicode method
-        """
-        return u'%s' % (self.name)
 
 
 class BusRoute(models.Model):
@@ -112,27 +104,10 @@ class BusRouteStop(models.Model):
     stop = models.ForeignKey(BusStop)
 
 
-class SubwayStation(models.Model):
+class SubwayStation(geoObject):
     """
     Subway Station
     """
-    osmid = models.BigIntegerField(unique=True)
-
-    name = models.CharField(max_length=100,
-                            verbose_name='Name',
-                            blank=True,
-                            null=True)
-
-    position = models.PointField(spatial_index=False)
-
-    date_import = models.DateTimeField(auto_now_add=True)
-
-    objects = models.GeoManager()
-
-    def __unicode__(self):
-        """The unicode method
-        """
-        return u'%s' % (self.name)
 
 
 class SubwayRoute(models.Model):
@@ -144,7 +119,7 @@ class SubwayRoute(models.Model):
     name = models.CharField(max_length=100,
                             verbose_name='Name',
                             blank=True,
-                            null=True)    
+                            null=True)
 
     ref = models.CharField(max_length=10, blank=True, null=True)
     colour = models.CharField(max_length=10, blank=True, null=True)
@@ -172,27 +147,10 @@ class SubwayStop(models.Model):
         unique_together = ('route', 'station',)
 
 
-class TramStation(models.Model):
+class TramStation(geoObject):
     """
     Tram Station
     """
-    osmid = models.BigIntegerField(unique=True)
-
-    name = models.CharField(max_length=100,
-                            verbose_name='Name',
-                            blank=True,
-                            null=True)
-
-    position = models.PointField(spatial_index=False)
-
-    date_import = models.DateTimeField(auto_now_add=True)
-
-    objects = models.GeoManager()
-
-    def __unicode__(self):
-        """The unicode method
-        """
-        return u'%s' % (self.name)
 
 
 class TramRoute(models.Model):
@@ -216,7 +174,6 @@ class TramRoute(models.Model):
 
     date_import = models.DateTimeField(auto_now_add=True)
 
-
     def __unicode__(self):
         """The unicode method
         """
@@ -232,3 +189,9 @@ class TramStop(models.Model):
 
     class Meta:
         unique_together = ('route', 'station',)
+
+
+class RailwayStation(geoObject):
+    """
+    Railway Station where you can take train
+    """

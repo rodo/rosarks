@@ -37,12 +37,12 @@ def build_results(status, request, lon, lat, precision, datas):
     except:
         limit = 10
 
-    results = {'status' : status,
+    results = {'status': status,
                'query': request.get_full_path(),
-               'center': [lon,lat],
+               'center': [lon, lat],
                'precision': precision,
                'nb_results': len(datas),
-               'datas' : datas[:limit]}
+               'datas': datas[:limit]}
 
     return json.dumps(results)
 
@@ -58,14 +58,26 @@ def serve(request, results):
         content = "{}({});".format(callback, results)
     except KeyError:
         content = results
-        
 
-    return HttpResponse(content, mimetype='application/json')    
+    return HttpResponse(content, mimetype='application/json')
+
+
+def safe_precision(precision):
+    precision = max(float(settings.ROSARKS_DISTANCE_MIN), float(precision))
+    precision = min(float(settings.ROSARKS_DISTANCE_MAX), float(precision))
+
+    return precision
 
 
 @cache_page(3600)
 def bicycle_rental(request, lon, lat):
-    return bicycle_rental_precision(request, lon, lat, settings.ROSARKS_DISTANCE_DEFAULT)
+    try:
+        precision = request.GET['precision']
+    except:
+        precision = settings.ROSARKS_DISTANCE_DEFAULT
+
+    return bicycle_rental_precision(request, lon, lat, precision)
+
 
 @cache_page(3600)
 def bicycle_rental_precision(request, lon, lat, precision):
@@ -73,9 +85,7 @@ def bicycle_rental_precision(request, lon, lat, precision):
 
     All bicycle rental at less than 1.42 kilometers
     """
-    precision = max(float(settings.ROSARKS_DISTANCE_MIN), float(precision))
-    precision = min(float(settings.ROSARKS_DISTANCE_MAX), float(precision))
-
+    precision = safe_precision(precision)
     datas = []
 
     pnt = GEOSGeometry('POINT({} {})'.format(lon, lat))
@@ -91,7 +101,7 @@ def bicycle_rental_precision(request, lon, lat, precision):
                       'operator': br.operator,
                       'amenity': 'bicycle_rental'})
 
-    results = build_results(0, request, lon, lat, precision, datas)
+    results = build_results(0, request, lon, lat, safe_precision(precision), datas)
 
     return serve(request, results)
 
@@ -102,15 +112,20 @@ def subway_station(request, lon, lat):
 
     Each subway station with line information
     """
-    return subway_station_precision(request, lon, lat, settings.ROSARKS_DISTANCE_DEFAULT)
+    try:
+        precision = request.GET['precision']
+    except:
+        precision = settings.ROSARKS_DISTANCE_DEFAULT
+
+    return subway_station_precision(request, lon, lat, precision)
 
 
 @cache_page(3600)
 def subway_station_precision(request, lon, lat, precision):
-
-    precision = max(float(settings.ROSARKS_DISTANCE_MIN), float(precision))
-    precision = min(float(settings.ROSARKS_DISTANCE_MAX), float(precision))
-
+    """
+    Subways
+    """
+    precision = safe_precision(precision)
     datas = []
 
     pnt = GEOSGeometry('POINT({} {})'.format(lon, lat))
@@ -151,15 +166,19 @@ def tram_station(request, lon, lat):
 
     Each tram station with line information
     """
-    return tram_station_precision(request, lon, lat, settings.ROSARKS_DISTANCE_DEFAULT)
+    try:
+        precision = request.GET['precision']
+    except:
+        precision = settings.ROSARKS_DISTANCE_DEFAULT
+
+    return tram_station_precision(request, lon, lat, precision)
 
 
 @cache_page(3600)
 def tram_station_precision(request, lon, lat, precision):
-
-    precision = max(float(settings.ROSARKS_DISTANCE_MIN), float(precision))
-    precision = min(float(settings.ROSARKS_DISTANCE_MAX), float(precision))
-
+    """Tramway station
+    """
+    precision = safe_precision(precision)
     datas = []
 
     pnt = GEOSGeometry('POINT({} {})'.format(lon, lat))
@@ -195,15 +214,20 @@ def bus_stop(request, lon, lat):
 
     Each tram station with line information
     """
-    return bus_stop_precision(request, lon, lat, settings.ROSARKS_DISTANCE_DEFAULT)
+    try:
+        precision = request.GET['precision']
+    except:
+        precision = settings.ROSARKS_DISTANCE_DEFAULT
+
+    return bus_stop_precision(request, lon, lat, precision)
 
 
 @cache_page(3600)
 def bus_stop_precision(request, lon, lat, precision):
-
-    precision = max(float(settings.ROSARKS_DISTANCE_MIN), float(precision))
-    precision = min(float(settings.ROSARKS_DISTANCE_MAX), float(precision))
-
+    """
+    Bus stop
+    """
+    precision = safe_precision(precision)
     datas = []
 
     pnt = GEOSGeometry('POINT({} {})'.format(lon, lat))
@@ -236,4 +260,3 @@ def bus_stop_precision(request, lon, lat, precision):
     results = build_results(0, request, lon, lat, precision, datas)
 
     return serve(request, results)
-
